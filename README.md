@@ -1,33 +1,3 @@
-<style>
-/* Evitar orfandad de títulos al exportar a PDF */
-h1, h2, h3, h4, h5, h6 {
-  page-break-after: avoid !important;
-  break-after: avoid !important;
-}
-
-/* Evitar que los bloques de artículos se corten entre páginas */
-.article-block {
-  display: block !important;
-  page-break-inside: avoid !important;
-  break-inside: avoid !important;
-}
-
-/* Evitar que imágenes, tablas, código, párrafos, listas y citas se dividan */
-img, table, pre, p, li, tr, blockquote, figure, div[style*="text-align: center"] {
-  page-break-inside: avoid !important;
-  break-inside: avoid !important;
-}
-
-/* Asegurar que el body no interfiera con los saltos de página en la impresión */
-@media print {
-  body {
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-}
-</style>
-
 <div style="text-align: center; padding-top: 50px; font-family: 'Outfit', sans-serif;">
 
 <h1>Instituto Tecnológico de Las Américas (ITLA)</h1>
@@ -43,8 +13,6 @@ img, table, pre, p, li, tr, blockquote, figure, div[style*="text-align: center"]
 <strong>Docente:</strong> Jonathan Esteban Rondon Corniel<br>
 <strong>Fecha de Entrega:</strong> 2 de julio de 2026<br>
 <strong>Video de Exposición:</strong> <a href="https://youtu.be/rFVnGnA3hfM">https://youtu.be/rFVnGnA3hfM</a>
-</div>
-</div>
 
 ## Objetivo de la VPN L2TP/IPSec
 El objetivo principal de esta configuración es establecer una conexión VPN de tipo Client-to-Site (también denominada de acceso remoto o punto a multipunto) utilizando el protocolo L2TP (Layer 2 Tunneling Protocol) protegido con seguridad IPSec basada en IKEv1. 
@@ -57,7 +25,6 @@ La topología implementada en el entorno GNS3 para este laboratorio consta de un
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/topologia_l2tp.png" width="480" alt="Topología de Red L2TP VPN GNS3">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Topología detallada del entorno de laboratorio en GNS3</p>
-</div>
 
 El direccionamiento IP asignado para esta infraestructura se detalla a continuación:
 
@@ -76,7 +43,7 @@ El direccionamiento IP asignado para esta infraestructura se detalla a continuac
 
 
 
-<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;"></div>
+<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;">
 
 ## Parámetros de Configuración Utilizados
 Para establecer de forma segura el canal de comunicación, se configuraron los siguientes parámetros criptográficos y de red en el HUB:
@@ -95,7 +62,7 @@ Para establecer de forma segura el canal de comunicación, se configuraron los s
 | **Credenciales de Usuario** | `vpnuser` / `Cisco123` | Credenciales de base de datos local validadas vía AAA. |
 
 
-<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;"></div>
+<div style="page-break-after: always; break-after: page; display: block; height: 1px; overflow: hidden;">
 
 ## Explicación y Configuración del HUB
 La configuración del HUB L2TP requiere habilitar la funcionalidad de VPDN (Virtual Private Dialup Network) para aceptar las llamadas entrantes bajo el protocolo L2TP y enrutarlas a una plantilla virtual de interfaz (`Virtual-Template1`). La seguridad se gestiona mediante políticas ISAKMP de fase 1 y conjuntos de transformación IPSec de fase 2 aplicados dinámicamente mediante un crypto map.
@@ -113,8 +80,6 @@ El código completo y estructurado de estos comandos se encuentra respaldado en 
 
 ## Verificación de Conectividad y Funcionamiento
 
-<div class="article-block">
-
 ### 1. Estado de la Asociación de Seguridad (ISAKMP SA)
 Al iniciar la conexión VPN desde el cliente Linux, se ejecuta una negociación de Fase 1. En el HUB, el comando `show crypto isakmp sa` muestra que se ha establecido con éxito un túnel entre la IP pública del HUB (`1.1.1.1`) y la IP pública del cliente remoto (`4.4.4.10`).
 
@@ -123,11 +88,6 @@ El estado de la SA se encuentra en **`QM_IDLE`** y el estatus reporta **`ACTIVE`
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/crypto_isakmp_sa.png" width="480" alt="Salida de show crypto isakmp sa en HUB">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Asociación de seguridad ISAKMP activa en estado QM_IDLE</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 2. Información del Túnel y la Sesión VPDN
 La verificación del protocolo L2TP a nivel de software de acceso telefónico virtual en el HUB se ejecuta mediante el comando `show vpdn`. La salida del dispositivo confirma la existencia de un túnel L2TP establecido (`est`) con el host remoto `user-pc` en la IP `4.4.4.10`. 
@@ -137,11 +97,6 @@ Adicionalmente, se reporta una sesión activa asignada a la interfaz de acceso v
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/show_vpdn.png" width="480" alt="Salida de show vpdn en HUB L2TP">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Estado del túnel L2TP y detalles de sesión VPDN para vpnuser</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 3. Interfaz Virtual PPP en el Cliente Linux
 Desde el extremo del cliente remoto Linux, una vez que el servicio de NetworkManager y `xl2tpd` concluyen la autenticación, se crea una interfaz virtual punto a punto denominada **`ppp0`**. El comando de red en Linux muestra que la interfaz tiene la IP local **`14.3.50.11`** asignada por el pool de VPN del HUB, teniendo como extremo remoto (peer) la IP virtual del HUB **`14.3.10.1`**. Esto demuestra el correcto enrutamiento lógico de Capa 3 a nivel virtual.
@@ -149,11 +104,6 @@ Desde el extremo del cliente remoto Linux, una vez que el servicio de NetworkMan
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/interfaz_ppp0.png" width="550" alt="Interfaz virtual ppp0 en Linux">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Interfaz ppp0 levantada con la IP remota del pool 14.3.50.11</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 4. Prueba de Conectividad sin VPN Activa (Bloqueo del ISP)
 Para demostrar la efectividad e importancia del uso del túnel VPN, se realizó una prueba de ping desde el cliente Linux hacia la red interna corporativa (`14.3.10.21`) antes de levantar el enlace cifrado. 
@@ -163,11 +113,6 @@ Como era de esperarse, dado que la LAN del HUB utiliza un direccionamiento priva
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/ping_sin_vpn.png" width="550" alt="Ping fallido sin VPN a través de ISP">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Prueba de conectividad bloqueada por el enrutador del ISP</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 5. Prueba de Conectividad con VPN Activa
 Una vez levantado el enlace L2TP/IPSec, se vuelve a ejecutar la prueba de conectividad desde la terminal del cliente Linux hacia el host interno de la LAN corporativa (`14.3.10.21`).
@@ -177,11 +122,6 @@ En esta ocasión, los paquetes se encapsulan en L2TP y se cifran a través de IP
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/ping_cliente_linux.png" width="550" alt="Ping exitoso con VPN activa hacia LAN">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Ping exitoso al host corporativo 14.3.10.21 desde el túnel seguro</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 6. Verificación de Enlace Directo al Gateway del Túnel
 Adicionalmente, se ejecuta un ping de verificación hacia la IP pública de la WAN del HUB (`1.1.1.1`) a través del enlace de comunicación cifrado. Los pings regresan correctamente con un retardo mínimo (menos de 0.7 ms en promedio) confirmando que el cliente remoto tiene una comunicación robusta y directa con la entrada virtual del router VPN corporativo.
@@ -189,11 +129,6 @@ Adicionalmente, se ejecuta un ping de verificación hacia la IP pública de la W
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/ping_hub_gateway.png" width="550" alt="Ping exitoso al gateway del HUB">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Ping exitoso a la IP virtual de control 1.1.1.1 desde Linux</p>
-</div>
-
-</div>
-
-<div class="article-block">
 
 ### 7. Rastreo de Ruta (Traceroute) desde la LAN al Cliente Remoto
 Para culminar las pruebas de verificación, se ejecuta un comando `tracer` desde uno de los hosts VPC locales de la LAN del HUB hacia la dirección VPN asignada al cliente Linux (`14.3.50.11`).
@@ -203,5 +138,3 @@ El rastreo de ruta muestra que el primer salto se dirige al gateway local `14.3.
 <div style="text-align: center; margin: 10px 0;">
   <img src="images/traceroute_vpc.png" width="550" alt="Traceroute de VPC hacia cliente VPN">
   <p style="font-size: 0.9em; color: #666; font-style: italic;">Ruta en un solo salto intermedio (HUB) hacia la dirección IP del cliente remoto</p>
-</div>
-</div>
