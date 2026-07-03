@@ -42,7 +42,8 @@ img, table, pre, p, li, tr, blockquote, figure, div[style*="text-align: center"]
 <strong>Asignatura:</strong> Seguridad de Redes<br>
 <strong>Docente:</strong> Jonathan Esteban Rondon Corniel<br>
 <strong>Fecha de Entrega:</strong> 2 de julio de 2026<br>
-<strong>Video de Exposición:</strong> <a href="https://youtu.be/rFVnGnA3hfM">https://youtu.be/rFVnGnA3hfM</a>
+<strong>Video de Exposición:</strong> <a href="https://youtu.be/rFVnGnA3hfM">https://youtu.be/rFVnGnA3hfM</a><br>
+<strong>Repositorio de GitHub:</strong> <a href="https://github.com/imAlanG16/09_l2tp_ipsec_ikev1_client_to_site">https://github.com/imAlanG16/09_l2tp_ipsec_ikev1_client_to_site</a>
 </div>
 </div>
 
