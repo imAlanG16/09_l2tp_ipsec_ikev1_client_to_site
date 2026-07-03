@@ -1,0 +1,170 @@
+###HUB###
+
+enable
+configure terminal
+
+hostname HUB-L2TP
+no ip domain-lookup
+ip cef
+
+interface Ethernet0/0
+ description WAN-HACIA-ISP
+ ip address 1.1.1.1 255.255.255.0
+ no shutdown
+
+interface Ethernet0/1
+ description LAN-HUB
+ ip address 14.3.10.1 255.255.255.0
+ no shutdown
+
+exit
+
+ip dhcp excluded-address 14.3.10.1 14.3.10.20
+ip dhcp excluded-address 14.3.10.200 14.3.10.220
+
+ip dhcp pool LAN-HUB
+ network 14.3.10.0 255.255.255.0
+ default-router 14.3.10.1
+ dns-server 8.8.8.8 1.1.1.1
+ domain-name hub.local
+
+ip route 0.0.0.0 0.0.0.0 1.1.1.254
+
+aaa new-model
+
+aaa authentication ppp L2TP-AUTH local
+aaa authorization network L2TP-AUTH local
+
+username vpnuser password 0 Cisco123
+
+ip local pool L2TP-POOL 14.3.50.10 14.3.50.50
+
+crypto isakmp policy 20
+ encr aes 256
+ hash sha
+ authentication pre-share
+ group 14
+ lifetime 86400
+
+crypto isakmp key L2TPKEY address 0.0.0.0 0.0.0.0
+
+crypto ipsec transform-set TS-L2TP esp-aes 256 esp-sha-hmac
+ mode transport
+
+crypto dynamic-map DYN-L2TP 10
+ set transform-set TS-L2TP
+
+crypto map MAP-L2TP 10 ipsec-isakmp dynamic DYN-L2TP
+
+interface Ethernet0/0
+ crypto map MAP-L2TP
+
+vpdn enable
+
+vpdn-group L2TP-GROUP
+ accept-dialin
+  protocol l2tp
+  virtual-template 1
+ no l2tp tunnel authentication
+
+interface Virtual-Template1
+ description L2TP-IPSEC-USERS
+ ip unnumbered Ethernet0/1
+ peer default ip address pool L2TP-POOL
+ ppp authentication ms-chap-v2 L2TP-AUTH
+ ppp encrypt mppe auto
+
+end
+write memory
+
+
+############
+
+#CONFIG LINUX#
+
+sudo apt update
+sudo apt install -y network-manager-l2tp network-manager-l2tp-gnome strongswan xl2tpd
+sudo systemctl restart NetworkManager
+
+nmcli connection add type vpn vpn-type l2tp con-name VPN-L2TP ifname -- \
+ vpn.data "gateway=1.1.1.1,ipsec-enabled=yes,ipsec-psk=L2TPKEY,user=vpnuser,password-flags=0,ipsec-ike=aes256-sha1-modp2048,ipsec-esp=aes256-sha1"
+
+nmcli connection modify VPN-L2TP vpn.secrets "password=Cisco123"
+
+nmcli connection modify VPN-L2TP +ipv4.routes "14.3.10.0/24"
+
+nmcli connection up VPN-L2TP
+
+############
+
+###CONFIG WIN###
+
+Configuración del cliente Windows
+En Windows crea una VPN nueva:
+
+Proveedor de VPN: Windows integrado
+Nombre de conexión: VPN-L2TP
+Servidor: 1.1.1.1
+Tipo de VPN: L2TP/IPsec con clave previamente compartida
+Clave previamente compartida: L2TPKEY
+Tipo de inicio de sesión: Nombre de usuario y contraseña
+Usuario: vpnuser
+Contraseña: Cisco123
+
+Luego entra a las propiedades de seguridad de la VPN y verifica:
+
+Permitir estos protocolos
+Microsoft CHAP versión 2, MS-CHAP v2
+
+Si el cliente Windows está detrás de NAT, ejecuta PowerShell como administrador:
+
+reg add HKLM\SYSTEM\CurrentControlSet\Services\PolicyAgent /v AssumeUDPEncapsulationContextOnSendRule /t REG_DWORD /d 2 /f
+
+Reinicia el PC
+
+#############
+
+###ISP###
+
+enable
+configure terminal
+
+hostname ISP
+no ip domain-lookup
+ip cef
+
+interface Ethernet0/0
+ description HACIA-HUB
+ ip address 1.1.1.254 255.255.255.0
+ no shutdown
+
+interface Ethernet0/1
+ description HACIA-SPOKE1
+ ip address 2.2.2.254 255.255.255.0
+ no shutdown
+
+interface Ethernet0/2
+ description HACIA-SPOKE2
+ ip address 3.3.3.254 255.255.255.0
+ no shutdown
+
+interface Ethernet0/3
+ description HACIA-CLIENTE-L2TP
+ ip address 4.4.4.254 255.255.255.0
+ no shutdown
+
+end
+write memory
+
+############
+
+#VERIFICACION#
+
+show crypto isakmp sa
+
+show crypto ipsec sa
+
+show vpdn
+
+show users
+
